@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ateliê Bela — Calçados, Bolsas & Íntimas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">Ateliê <em>Bela</em></div>
+    <nav class="top-links">
+      <a href="/admin.html">Painel admin</a>
+    </nav>
+  </div>
+</header>
+
+<section class="rail">
+  <div class="rail-label">
+    <p class="eyebrow">Calçados · Bolsas · Íntimas</p>
+    <h2 style="font-size:2rem; margin-top:8px;">Nosso catálogo</h2>
+  </div>
+  <div class="tags">
+    <button class="tag active" data-cat="calcados"><span class="tag-code">01 · sapataria</span>Calçados</button>
+    <button class="tag" data-cat="bolsas"><span class="tag-code">02 · marroquinaria</span>Bolsas</button>
+    <button class="tag" data-cat="intimas"><span class="tag-code">03 · lingerie</span>Íntimas</button>
+  </div>
+</section>
+
+<section class="catalog">
+  <div class="panel active" data-panel="calcados">
+    <div class="panel-head"><h2>Calçados</h2></div>
+    <div class="grid" data-grid="calcados"></div>
+  </div>
+  <div class="panel" data-panel="bolsas">
+    <div class="panel-head"><h2>Bolsas</h2></div>
+    <div class="grid" data-grid="bolsas"></div>
+  </div>
+  <div class="panel" data-panel="intimas">
+    <div class="panel-head"><h2>Íntimas</h2></div>
+    <div class="grid" data-grid="intimas"></div>
+  </div>
+</section>
+
+<footer>
+  <span class="logo">Ateliê <em style="color:var(--wine); font-style:normal;">Bela</em></span>
+  <p>Rua Exemplo, 123 — Sua Cidade</p>
+</footer>
+
+<script src="/js/store.js"></script>
+</body>
+</html>

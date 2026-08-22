@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin — Ateliê Bela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">Ateliê <em>Bela</em> — admin</div>
+    <nav class="top-links">
+      <a href="/index.html">Ver vitrine</a>
+    </nav>
+  </div>
+</header>
+
+<div id="login-screen" class="admin-login">
+  <h2>Entrar no painel</h2>
+  <p style="font-size:0.85rem; opacity:0.7;">Digite a senha de administrador definida no arquivo .env</p>
+  <input type="password" id="admin-password" placeholder="Senha">
+  <button class="btn" id="btn-login">Entrar</button>
+  <div id="login-msg"></div>
+</div>
+
+<div id="admin-panel" class="admin-wrap" style="display:none;">
+
+  <div class="admin-form">
+    <h3>Adicionar novo produto</h3>
+    <div id="form-msg"></div>
+    <label>Categoria</label>
+    <select id="new-category">
+      <option value="calcados">Calçados</option>
+      <option value="bolsas">Bolsas</option>
+      <option value="intimas">Íntimas</option>
+    </select>
+    <label>Nome do produto</label>
+    <input type="text" id="new-name" placeholder="Ex: Scarpin Clássico">
+    <label>Preço</label>
+    <input type="text" id="new-price" placeholder="Ex: R$ 189,90">
+    <label>Foto</label>
+    <input type="file" id="new-photo" accept="image/*">
+    <div style="margin-top:18px;">
+      <button class="btn" id="btn-add">Adicionar produto</button>
+    </div>
+  </div>
+
+  <h3>Produtos cadastrados</h3>
+  <div class="grid admin-list" id="admin-list" style="margin-top:16px;"></div>
+</div>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>
