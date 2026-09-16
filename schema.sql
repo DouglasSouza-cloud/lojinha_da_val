@@ -1,3 +1,4 @@
+-- Active: 1789575093178@@degedege-douglassouza4689-76d8.a.aivencloud.com@25460@defaultdb
 -- Rode este arquivo uma vez no seu MySQL para criar o banco e a tabela.
 -- Exemplo (linha de comando): mysql -u root -p < schema.sql
 --
