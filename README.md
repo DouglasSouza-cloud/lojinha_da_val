@@ -30,7 +30,17 @@ O Aiven já cria um serviço MySQL com um banco padrão chamado `defaultdb` — 
 2. Ainda na aba Overview, baixe o **certificado CA** (botão "CA Certificate" ou similar) e salve o arquivo como `ca.pem` dentro da pasta do projeto. O Aiven exige conexão criptografada (SSL), e esse certificado é o que garante uma conexão segura.
 3. Conecte no seu banco (com o cliente `mysql`, o **Aiven Console**, ou uma ferramenta como TablePlus/DBeaver) e rode apenas a parte de criação da tabela do `schema.sql` — ou seja, pule a linha `CREATE DATABASE` e `USE loja_bela`, e rode direto o `CREATE TABLE` e os `INSERT` dentro do banco `defaultdb`.
 
-## 3. Configurar as variáveis de ambiente
+## 3. Configurar o armazenamento de fotos (Cloudinary)
+
+As fotos enviadas pelo painel admin são guardadas no **Cloudinary** (não no disco do servidor), porque hospedagens como o Render apagam arquivos locais toda vez que o servidor reinicia. No Cloudinary as fotos ficam permanentes.
+
+1. Crie uma conta gratuita em [cloudinary.com](https://cloudinary.com).
+2. Assim que entrar, o **Dashboard** já mostra três valores: **Cloud name**, **API Key** e **API Secret**.
+3. Anote os três — você vai usar no próximo passo.
+
+Se você já tinha produtos cadastrados antes dessa mudança, rode o arquivo `migration-cloudinary.sql` no seu banco (pela extensão MySQL do VS Code) para adicionar a coluna nova sem perder nada do que já existe.
+
+## 4. Configurar as variáveis de ambiente
 
 Copie o arquivo de exemplo:
 
@@ -41,6 +51,7 @@ cp .env.example .env
 Abra o `.env` e preencha com os dados do passo anterior:
 - **MySQL local:** `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`.
 - **Aiven:** `DB_HOST`, `DB_PORT` (não é o 3306 padrão — o Aiven usa uma porta própria), `DB_USER`, `DB_PASSWORD`, `DB_NAME=defaultdb`, e `DB_CA_CERT_PATH=./ca.pem` apontando para o certificado que você baixou.
+- **Cloudinary:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (do Dashboard do Cloudinary).
 
 De qualquer forma, escolha também uma `ADMIN_PASSWORD` (é a senha que você vai usar para entrar no painel admin).
 

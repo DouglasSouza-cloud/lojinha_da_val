@@ -1,4 +1,3 @@
--- Active: 1789575093178@@degedege-douglassouza4689-76d8.a.aivencloud.com@25460@defaultdb
 -- Rode este arquivo uma vez no seu MySQL para criar o banco e a tabela.
 -- Exemplo (linha de comando): mysql -u root -p < schema.sql
 --
@@ -16,7 +15,8 @@ CREATE TABLE IF NOT EXISTS products (
   category ENUM('calcados', 'bolsas', 'intimas') NOT NULL,
   name VARCHAR(120) NOT NULL,
   price VARCHAR(30) NOT NULL,
-  image_path VARCHAR(255) DEFAULT NULL,
+  image_path VARCHAR(500) DEFAULT NULL,
+  image_public_id VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

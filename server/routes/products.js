@@ -1,25 +1,15 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const pool = require('../db');
+const { uploadImage, deleteImage } = require('../cloudinary');
 
 const router = express.Router();
 
 // ---------- configuração do upload de imagens ----------
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const safeName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-    cb(null, safeName);
-  },
-});
+// O arquivo fica só na memória (não salva no disco do servidor) e é
+// repassado direto para o Cloudinary, que guarda a foto de forma permanente.
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 }, // 8MB por foto
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
@@ -70,10 +60,18 @@ router.post('/', requireAdmin, upload.single('photo'), async (req, res) => {
     if (!category || !name || !price) {
       return res.status(400).json({ erro: 'Categoria, nome e preço são obrigatórios.' });
     }
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    let imagePath = null;
+    let imagePublicId = null;
+    if (req.file) {
+      const uploaded = await uploadImage(req.file.buffer);
+      imagePath = uploaded.url;
+      imagePublicId = uploaded.publicId;
+    }
+
     const [result] = await pool.query(
-      'INSERT INTO products (category, name, price, image_path) VALUES (?, ?, ?, ?)',
-      [category, name, price, imagePath]
+      'INSERT INTO products (category, name, price, image_path, image_public_id) VALUES (?, ?, ?, ?, ?)',
+      [category, name, price, imagePath, imagePublicId]
     );
     res.status(201).json({ id: result.insertId, category, name, price, image_path: imagePath });
   } catch (err) {
@@ -94,18 +92,21 @@ router.put('/:id', requireAdmin, upload.single('photo'), async (req, res) => {
     if (!existing) return res.status(404).json({ erro: 'Produto não encontrado.' });
 
     let imagePath = existing.image_path;
+    let imagePublicId = existing.image_public_id;
+
     if (req.file) {
-      // apaga a foto antiga do disco, se existir, para não acumular lixo
-      if (existing.image_path) {
-        const oldFile = path.join(uploadDir, path.basename(existing.image_path));
-        fs.unlink(oldFile, () => {});
+      // apaga a foto antiga do Cloudinary, se existir, para não acumular lixo
+      if (existing.image_public_id) {
+        await deleteImage(existing.image_public_id);
       }
-      imagePath = `/uploads/${req.file.filename}`;
+      const uploaded = await uploadImage(req.file.buffer);
+      imagePath = uploaded.url;
+      imagePublicId = uploaded.publicId;
     }
 
     await pool.query(
-      'UPDATE products SET name = ?, price = ?, image_path = ? WHERE id = ?',
-      [name || existing.name, price || existing.price, imagePath, id]
+      'UPDATE products SET name = ?, price = ?, image_path = ?, image_public_id = ? WHERE id = ?',
+      [name || existing.name, price || existing.price, imagePath, imagePublicId, id]
     );
     res.json({ id: Number(id), name: name || existing.name, price: price || existing.price, image_path: imagePath });
   } catch (err) {
@@ -122,9 +123,8 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     const produto = rows[0];
     if (!produto) return res.status(404).json({ erro: 'Produto não encontrado.' });
 
-    if (produto.image_path) {
-      const filePath = path.join(uploadDir, path.basename(produto.image_path));
-      fs.unlink(filePath, () => {});
+    if (produto.image_public_id) {
+      await deleteImage(produto.image_public_id);
     }
     await pool.query('DELETE FROM products WHERE id = ?', [id]);
     res.json({ ok: true });
