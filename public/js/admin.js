@@ -10,6 +10,50 @@ function showMsg(el, text, type) {
   setTimeout(() => { el.innerHTML = ''; }, 4000);
 }
 
+// ---------- máscara de preço ----------
+// Deixa só os números que a pessoa digitou e formata como moeda brasileira,
+// tratando os 2 últimos dígitos como centavos. Ex: digitar "19000" vira "R$ 190,00".
+// Também mantém o cursor no lugar certo, para dar pra editar no meio do número
+// sem ele "pular" pro final a cada tecla.
+function countDigits(str) {
+  return (str.match(/\d/g) || []).length;
+}
+
+function formatPriceInput(inputEl) {
+  const oldValue = inputEl.value;
+  const caretPos = inputEl.selectionStart ?? oldValue.length;
+  const digitsBeforeCaret = countDigits(oldValue.slice(0, caretPos));
+
+  let digits = oldValue.replace(/\D/g, '');
+  if (!digits) {
+    inputEl.value = '';
+    return;
+  }
+  digits = digits.replace(/^0+(?=\d)/, ''); // tira zeros à esquerda desnecessários
+  while (digits.length < 3) digits = '0' + digits; // garante ao menos "0,00"
+
+  const cents = digits.slice(-2);
+  let reais = digits.slice(0, -2);
+  reais = reais.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // separador de milhar
+
+  const newValue = `R$ ${reais},${cents}`;
+  inputEl.value = newValue;
+
+  // recoloca o cursor depois do mesmo tanto de dígitos que ele estava antes
+  let pos = 0;
+  let seen = 0;
+  while (pos < newValue.length && seen < digitsBeforeCaret) {
+    if (/\d/.test(newValue[pos])) seen++;
+    pos++;
+  }
+  inputEl.setSelectionRange(pos, pos);
+}
+
+function attachPriceMask(inputEl) {
+  inputEl.setAttribute('inputmode', 'numeric');
+  inputEl.addEventListener('input', () => formatPriceInput(inputEl));
+}
+
 async function tryEnterPanel() {
   // valida a senha fazendo uma chamada de teste (criar um produto "fake" não é ideal,
   // então usamos uma checagem simples: tentamos apagar um id inexistente e olhamos o status)
@@ -35,6 +79,8 @@ document.getElementById('btn-login').addEventListener('click', () => {
 
 // se já tiver senha salva nesta aba/sessão, tenta entrar direto
 if (adminPassword) tryEnterPanel();
+
+attachPriceMask(document.getElementById('new-price'));
 
 // ---------- adicionar produto ----------
 document.getElementById('btn-add').addEventListener('click', async () => {
@@ -109,6 +155,7 @@ async function loadAdminList() {
       </div>
     `;
     list.appendChild(card);
+    attachPriceMask(card.querySelector('.edit-price'));
   });
 
   // salvar nome/preço editados
